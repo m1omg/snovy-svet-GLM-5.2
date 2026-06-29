@@ -847,12 +847,13 @@ function generateLevel(levelNum) {
     };
   }
 
-  // Player
+  // Player — spawn directly ON the start platform
   player = createPlayer();
   player.x = 100;
-  player.y = groundY - player.h - 10;
+  player.y = groundY - player.h;
+  player.onGround = true;
   player.respawnX = 100;
-  player.respawnY = groundY - player.h - 10;
+  player.respawnY = groundY - player.h;
 }
 
 // ===================== INPUT =====================
@@ -1198,7 +1199,7 @@ function loseLife() {
     stopMusic();
   } else {
     player.x = player.respawnX;
-    player.y = player.respawnY || (groundY - player.h - 10);
+    player.y = player.respawnY || (groundY - player.h);
     player.vx = 0; player.vy = 0;
     player.isGroundPounding = false;
     player.isDashing = false;
@@ -1375,7 +1376,7 @@ function update(dt) {
     // Top collision (landing)
     if (player.vy >= 0 &&
         player.x + player.w > p.x + 4 && player.x < p.x + p.w - 4 &&
-        player.y + player.h >= p.y && player.y + player.h <= p.y + p.h + 10) {
+        player.y + player.h >= p.y && player.y + player.h <= p.y + p.h + Math.max(10, player.vy * 1.5)) {
       player.y = p.y - player.h;
       player.vy = 0;
       player.onGround = true;
