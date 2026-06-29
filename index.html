@@ -637,7 +637,7 @@ let player = null;
 function createPlayer() {
   return {
     x: 100, y: CONFIG.CANVAS_HEIGHT - 150,
-    w: 35, h: 50,
+    w: 50, h: 70,
     vx: 0, vy: 0,
     onGround: false, jumpsLeft: CONFIG.MAX_JUMPS,
     facing: 1,
@@ -675,7 +675,7 @@ function generateLevel(levelNum) {
   // Procedural path
   let currentX = 200, currentY = groundY;
   const gapMult = difficulty.gapMultiplier;
-  const maxJumpHeight = 180;
+  const maxJumpHeight = 200;
   let platId = 0;
 
   function doesOverlap(x, y, w, h) {
@@ -850,9 +850,9 @@ function generateLevel(levelNum) {
   // Player
   player = createPlayer();
   player.x = 100;
-  player.y = groundY - 100;
+  player.y = groundY - player.h - 10;
   player.respawnX = 100;
-  player.respawnY = groundY - 100;
+  player.respawnY = groundY - player.h - 10;
 }
 
 // ===================== INPUT =====================
@@ -1198,7 +1198,7 @@ function loseLife() {
     stopMusic();
   } else {
     player.x = player.respawnX;
-    player.y = player.respawnY || (groundY - 100);
+    player.y = player.respawnY || (groundY - player.h - 10);
     player.vx = 0; player.vy = 0;
     player.isGroundPounding = false;
     player.isDashing = false;
@@ -2557,6 +2557,16 @@ function init() {
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(() => {
       isDesktop = isDesktopDevice();
+      // During gameplay, only update CSS display size — NOT internal canvas resolution.
+      // Changing canvas.width/height clears the canvas and breaks the coordinate system
+      // that the current level was built with.
+      if (currentState === GameState.PLAYING || currentState === GameState.PAUSED) {
+        container.style.width = '100vw';
+        container.style.height = '100vh';
+        canvas.style.width = '100%';
+        canvas.style.height = '100%';
+        return;
+      }
       applyCanvasSize();
       if (isDesktop) {
         document.getElementById('ctrlRowMenu').style.display = 'none';
